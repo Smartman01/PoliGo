@@ -9,9 +9,9 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/HatchfulExport-logo/logo.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/HatchfulExport-logo/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
