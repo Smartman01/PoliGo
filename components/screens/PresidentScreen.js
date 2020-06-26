@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Text, View, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native'
 import { useFonts, Raleway_700Bold, Raleway_400Regular } from '@expo-google-fonts/raleway';
 import { AppLoading } from 'expo';
@@ -53,6 +53,7 @@ export default function PresidentScreen({navigation}) {
                 <Text style={styles.title}>2020 Presidential Election</Text>
                 <Text style={styles.body}>Presidential Candidates</Text>
                 {Presidents(navigation)}
+                {/* Voting Place Button */}
             </View>
         </View>
     );

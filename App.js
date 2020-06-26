@@ -24,6 +24,7 @@ const Main = createStackNavigator();
 
 export default function App() {
   return (
+    // Add Tab bar navigation
     <NavigationContainer>
       <Main.Navigator>
         <Main.Screen name='President' component={HomeScreen}
@@ -36,6 +37,7 @@ export default function App() {
             headerShown: false
           }}
         />
+        {/* Map Screen */}
       </Main.Navigator>
     </NavigationContainer>
   );

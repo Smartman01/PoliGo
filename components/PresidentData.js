@@ -11,6 +11,9 @@ export default PresidentData = [
         contactInfo: {
             website: 'https://www.whitehouse.gov',
             officeAddress: '1600 Pennsylvania Ave NW, Washington, DC 20500',
+            twitter: '',
+            instagram: '',
+            youtube: ''
         },
         key: '1'
     },
@@ -26,6 +29,9 @@ export default PresidentData = [
         contactInfo: {
             website: 'https://joebiden.com/',
             officeAddress: null,
+            twitter: '',
+            instagram: '',
+            youtube: ''
         },
         key: '2'
     }

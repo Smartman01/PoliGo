@@ -27,6 +27,9 @@ export default function AboutPresident({navigation, president}) {
                         </View>
                         ) : (<Text>No Running Mate Yet</Text>)
                     }
+                    {/* Add Button and linking feature */}
+                    <Text>Contact Info: {president.contactInfo.website}</Text>
+                    {/* Display Social Media and linking feature */}
                 </ScrollView>
             </View>
         </View>
