@@ -47,13 +47,15 @@ export default function PresidentScreen({navigation}) {
 
     return (
         <View style={styles.container}>
+            {/* Wrap in scrollview */}
             <Text style={styles.appName}>PoliGo</Text>
             <Text style={styles.subTitle}>Politics on the Go</Text>
             <View style={styles.subContainer}>
                 <Text style={styles.title}>2020 Presidential Election</Text>
                 <Text style={styles.body}>Presidential Candidates</Text>
                 {Presidents(navigation)}
-                {/* Voting Place Button */}
+                {/* State voting info Button */}
+                {/* Pie Chart of Poll Numbers */}
             </View>
         </View>
     );
