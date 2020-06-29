@@ -5,6 +5,7 @@ import { AppLoading } from 'expo';
 import Constants from 'expo-constants';
 
 import PresidentData from '../PresidentData';
+import { ScrollView } from 'react-native-gesture-handler';
 
 function Presidents(navigation) {
     return (
@@ -13,16 +14,16 @@ function Presidents(navigation) {
                 data={PresidentData}
                 numColumns={2}
                 key={item => item.key}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                     <View style={item.party === 'Democratic' ? styles.democratic : styles.republican}>
                         <TouchableOpacity onPress={() => {
-                            navigation.navigate("About President", {item});
+                            navigation.navigate("About President", { item });
                         }}>
-                            <Image source={{uri: item.imageUrl}} style={styles.image}/>
+                            <Image source={{ uri: item.imageUrl }} style={styles.image} />
                             <Text>{item.name}</Text>
                             <Text>Party: {item.party}</Text>
                             <TouchableOpacity onPress={() => {
-                                navigation.navigate("About President", {item});
+                                navigation.navigate("About President", { item });
                             }}>
                                 <Text>Learn More</Text>
                             </TouchableOpacity>
@@ -34,7 +35,7 @@ function Presidents(navigation) {
     )
 }
 
-export default function PresidentScreen({navigation}) {
+export default function PresidentScreen({ navigation }) {
 
     let [fontsLoaded] = useFonts({
         Raleway_700Bold,
@@ -48,34 +49,42 @@ export default function PresidentScreen({navigation}) {
     return (
         <View style={styles.container}>
             {/* Wrap in scrollview */}
-            <Text style={styles.appName}>PoliGo</Text>
-            <Text style={styles.subTitle}>Politics on the Go</Text>
-            <View style={styles.subContainer}>
-                <Text style={styles.title}>2020 Presidential Election</Text>
-                <Text style={styles.body}>Presidential Candidates</Text>
-                {Presidents(navigation)}
+            <ScrollView contentContainerStyle={{ alignItems: 'center', }}>
+                <Text style={styles.appName}>PoliGo</Text>
+                <Text style={styles.subTitle}>Politics on the Go</Text>
+                <View style={styles.subContainer}>
+                    <Text style={styles.title}>2020 Presidential Election</Text>
+                    <Text style={styles.body}>Presidential Candidates</Text>
+                    {Presidents(navigation)}
+
+                    {/* Pie Chart of Poll Numbers */}
+                </View>
                 {/* State voting info Button */}
-                {/* Pie Chart of Poll Numbers */}
-            </View>
+                <TouchableOpacity onPress={() => {
+                    navigation.navigate('Voting Screen');
+                }}>
+                    <Text style={styles.body}>Voting Info Screen</Text>
+                </TouchableOpacity>
+            </ScrollView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginTop: Constants.statusBarHeight
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: Constants.statusBarHeight
     },
     subContainer: {
-        flex: 1,
+        flex: 2,
         alignItems: 'center',
         marginTop: 20
     },
     appName: {
-        fontFamily : 'Raleway_700Bold',
+        fontFamily: 'Raleway_700Bold',
         fontSize: 40,
     },
     title: {
@@ -101,7 +110,7 @@ const styles = StyleSheet.create({
     },
     image: {
         width: 150,
-        height: 150,
+        height: 200,
         margin: 10,
     }
 });

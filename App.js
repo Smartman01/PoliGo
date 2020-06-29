@@ -5,18 +5,25 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import AboutPresident from './components/screens/AboutPresident';
 import PresidentScreen from './components/screens/PresidentScreen';
+import VotingInfoScreen from './components/screens/VotingInfoScreen';
 
-function HomeScreen({navigation}) {
+function HomeScreen({ navigation }) {
   return (
-      <PresidentScreen navigation={navigation}/>
+    <PresidentScreen navigation={navigation} />
   );
 }
 
-function PresidentAboutScreen({route, navigation}) {
-  const {item} = route.params;
+function PresidentAboutScreen({ route, navigation }) {
+  const { item } = route.params;
 
   return (
-      <AboutPresident navigation={navigation} president={item} />
+    <AboutPresident navigation={navigation} president={item} />
+  );
+}
+
+function VotingScreen({ navigation }) {
+  return (
+    <VotingInfoScreen navigation={navigation} />
   );
 }
 
@@ -33,6 +40,11 @@ export default function App() {
           }}
         />
         <Main.Screen name='About President' component={PresidentAboutScreen}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Main.Screen name='Voting Screen' component={VotingScreen}
           options={{
             headerShown: false
           }}
