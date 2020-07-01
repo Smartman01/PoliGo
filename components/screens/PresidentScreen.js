@@ -5,17 +5,25 @@ import { AppLoading } from 'expo';
 import Constants from 'expo-constants';
 
 import PresidentData from '../PresidentData';
-import { ScrollView } from 'react-native-gesture-handler';
+import PieChartData from '../PieChartData'
 
 function Presidents(navigation) {
     return (
-        <View>
+        <View style={styles.container}>
+            <Text style={styles.appName}>PoliGo</Text>
+            <Text style={styles.subTitle}>Politics on the Go</Text>
             <FlatList
+                ListHeaderComponent={
+                    <View style={styles.container}>
+                        <Text style={styles.title}>2020 Presidential Election</Text>
+                        <Text style={styles.body}>Presidential Candidates</Text>
+                    </View>
+                }
                 data={PresidentData}
                 numColumns={2}
                 key={item => item.key}
                 renderItem={({ item }) => (
-                    <View style={item.party === 'Democratic' ? styles.democratic : styles.republican}>
+                    <View style={styles.container}>
                         <TouchableOpacity onPress={() => {
                             navigation.navigate("About President", { item });
                         }}>
@@ -30,6 +38,18 @@ function Presidents(navigation) {
                         </TouchableOpacity>
                     </View>
                 )}
+                ListFooterComponent={
+                    <>
+                        {/* Pie Chart of Poll Numbers */}
+                        <PieChartData />
+                        {/* State voting info Button */}
+                        <TouchableOpacity onPress={() => {
+                            navigation.navigate('Voting Screen');
+                        }}>
+                            <Text style={styles.body}>Voting Info Screen</Text>
+                        </TouchableOpacity>
+                    </>
+                }
             />
         </View>
     )
@@ -46,28 +66,7 @@ export default function PresidentScreen({ navigation }) {
         return <AppLoading />;
     }
 
-    return (
-        <View style={styles.container}>
-            {/* Wrap in scrollview */}
-            <ScrollView contentContainerStyle={{ alignItems: 'center', }}>
-                <Text style={styles.appName}>PoliGo</Text>
-                <Text style={styles.subTitle}>Politics on the Go</Text>
-                <View style={styles.subContainer}>
-                    <Text style={styles.title}>2020 Presidential Election</Text>
-                    <Text style={styles.body}>Presidential Candidates</Text>
-                    {Presidents(navigation)}
-
-                    {/* Pie Chart of Poll Numbers */}
-                </View>
-                {/* State voting info Button */}
-                <TouchableOpacity onPress={() => {
-                    navigation.navigate('Voting Screen');
-                }}>
-                    <Text style={styles.body}>Voting Info Screen</Text>
-                </TouchableOpacity>
-            </ScrollView>
-        </View>
-    );
+    return Presidents(navigation)
 }
 
 const styles = StyleSheet.create({
@@ -81,7 +80,6 @@ const styles = StyleSheet.create({
     subContainer: {
         flex: 2,
         alignItems: 'center',
-        marginTop: 20
     },
     appName: {
         fontFamily: 'Raleway_700Bold',
