@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text } from 'react-native'
 
-export default function infoScreen() {
+export default function OfficialsInfo() {
     return (
         <View>
             <Text></Text>

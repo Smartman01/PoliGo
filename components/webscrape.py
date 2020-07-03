@@ -13,11 +13,26 @@ biden = float(data[1].get_text().strip().replace('%', ''))
 trump = float(data[2].get_text().strip().replace('%', ''))
 other = float("{:.2f}".format(biden - trump))
 
-x = {
-    'biden' : biden,
-    'trump' : trump,
-    'other' : other
-}
+x = [
+    {
+      'candidate': 'Biden',
+      'amount': biden,
+      'key': 1,
+      'svg': { 'fill': '#0000ff' }
+    },
+    {
+      'candidate': 'Trump',
+      'amount': trump,
+      'key': 2,
+      'svg': { 'fill': '#ff0000' }
+    },
+    {
+      'candidate': 'Other',
+      'amount': other,
+      'key': 3,
+      'svg': { 'fill': '#fff' }
+    }
+]
 
 print('export default pollAvgData =')
 print(re.sub(regex, '\\1', json.dumps(x, indent=3)))

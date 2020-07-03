@@ -1,20 +1,27 @@
-export default pollAvgData = [
+export default pollAvgData =
+[
    {
-      candidate: 'Biden',
-      amount: 48.8,
-      key: 1,
-      svg: { fill: '#0000ff' }
-   },
+      svg: {
+         fill: "#0000ff"
+      }, 
+      amount: 49.6, 
+      key: 1, 
+      candidate: "Biden"
+   }, 
    {
-      candidate: 'Trump',
-      amount: 39.6,
-      key: 3,
-      svg: { fill: '#ff0000' }
-   },
+      svg: {
+         fill: "#ff0000"
+      }, 
+      amount: 40.1, 
+      key: 2, 
+      candidate: "Trump"
+   }, 
    {
-      candidate: 'Other',
-      amount: 9.2,
-      key: 2,
-      svg: { fill: '#fff' }
+      svg: {
+         fill: "#fff"
+      }, 
+      amount: 9.5, 
+      key: 3, 
+      candidate: "Other"
    }
 ]

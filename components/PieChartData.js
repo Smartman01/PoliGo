@@ -8,9 +8,9 @@ class PieChartData extends React.PureComponent {
 
     render() {
 
-        const Labels = ({ slices, height, width }) => {
+        const Labels = ({ slices }) => {
             return slices.map((slice, index) => {
-                const { labelCentroid, pieCentroid, data } = slice;
+                const { pieCentroid, data } = slice;
                 return (
                     <Text
                         key={index}
@@ -19,11 +19,12 @@ class PieChartData extends React.PureComponent {
                         fill={'black'}
                         textAnchor={'middle'}
                         alignmentBaseline={'middle'}
-                        fontSize={20}
+                        fontSize={18}
                         stroke={'black'}
                         strokeWidth={0.2}
                     >
                         {data.candidate}
+                        {data.amount}
                     </Text>
                 )
             })
@@ -31,7 +32,7 @@ class PieChartData extends React.PureComponent {
 
         return (
             <PieChart
-                style={{ height: 200 }}
+                style={{ height: 200, backgroundColor: '#AAA' }}
                 valueAccessor={({ item }) => item.amount}
                 data={pollAvgData}
                 spacing={0}
