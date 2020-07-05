@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, TextInput, FlatList, ActivityIndicator } from 'react-native'
+import { Text, View, TextInput, FlatList, ActivityIndicator, TouchableOpacity, Image } from 'react-native'
 import Constants from 'expo-constants'
 import CheckBox from '@react-native-community/checkbox';
 import { add } from 'react-native-reanimated';
@@ -23,7 +23,34 @@ export default class OfficalsScreen extends Component {
             state: true,
             county: true,
             local: true,
-            officicalsData: []
+            officicalsData: [],
+            officesData: []
+        }
+    }
+
+    findOfficialRole = () => {
+        let { officicalsData, officesData } = this.state
+
+        let foundRole = 0, i = 0, j = 0, k = 0;
+
+        for (i = 0; i < Object.keys(officicalsData[0]).length; i++) {
+            for (j = 0; j < Object.keys(officesData[0]).length; j++) {
+                foundRole = 0;
+
+                for (k = 0; k < officesData[0][j].officialIndices.length; k++) {
+                    if (i === officesData[0][j].officialIndices[k]) {
+                        officicalsData[0][i].role = officesData[0][j].name;
+
+                        console.log(officicalsData[0][i])
+
+                        foundRole = 1;
+                        break;
+                    }
+                }
+
+                if (foundRole)
+                    break;
+            }
         }
     }
 
@@ -34,7 +61,13 @@ export default class OfficalsScreen extends Component {
                     data={this.state.officicalsData[0]}
                     renderItem={({ item }) => (
                         <View>
-                            <Text>{item.name}</Text>
+                            <TouchableOpacity>
+                                <Image source={{uri: item.photoUrl}} style={{width: 100, height: 100}}/>
+                                <Text>{item.name}</Text>
+                                <Text>{item.party}</Text>
+                                <Text>{item.role}</Text>
+                                <Text>Socials: </Text>
+                            </TouchableOpacity>
                         </View>
                     )}
                     keyExtractor={item => item.name}
@@ -57,10 +90,18 @@ export default class OfficalsScreen extends Component {
                     return elem !== undefined
                 })
 
+                let office = [...this.state.officesData, response.offices].filter(elem => {
+                    return elem !== undefined
+                })
+
                 this.setState({
                     officicalsData: data,
+                    officesData: office,
                     isLoading: false
                 })
+
+                // console.log(Object.keys(this.state.officicalsData[0]).length);
+                this.findOfficialRole()
             })
             .catch(console.log)
     }
@@ -79,10 +120,17 @@ export default class OfficalsScreen extends Component {
                     return elem !== undefined
                 })
 
+                let office = [...this.state.officesData, response.offices].filter(elem => {
+                    return elem !== undefined
+                })
+
                 this.setState({
                     officicalsData: data,
+                    officesData: office,
                     isLoading: false
                 })
+
+                this.findOfficialRole()
             })
             .catch(console.log)
     }
@@ -101,10 +149,17 @@ export default class OfficalsScreen extends Component {
                     return elem !== undefined
                 })
 
+                let office = [...this.state.officesData, response.offices].filter(elem => {
+                    return elem !== undefined
+                })
+
                 this.setState({
                     officicalsData: data,
+                    officesData: office,
                     isLoading: false
                 })
+
+                this.findOfficialRole()
             })
             .catch(console.log)
     }
@@ -123,10 +178,17 @@ export default class OfficalsScreen extends Component {
                     return elem !== undefined
                 })
 
+                let office = [...this.state.officesData, response.offices].filter(elem => {
+                    return elem !== undefined
+                })
+    
                 this.setState({
                     officicalsData: data,
+                    officesData: office,
                     isLoading: false
                 })
+
+                this.findOfficialRole()
             })
             .catch(console.log)
     }
@@ -145,10 +207,17 @@ export default class OfficalsScreen extends Component {
                     return elem !== undefined
                 })
 
+                let office = [...this.state.officesData, response.offices].filter(elem => {
+                    return elem !== undefined
+                })
+    
                 this.setState({
                     officicalsData: data,
+                    officesData: office,
                     isLoading: false
                 })
+
+                this.findOfficialRole()
             })
             .catch(console.log)
     }
@@ -160,7 +229,8 @@ export default class OfficalsScreen extends Component {
         let { federal, state, county, local } = this.state
 
         this.setState({
-            officicalsData : []
+            officicalsData : [],
+            officesData: []
         })
 
         if (local && county && state && federal) {
