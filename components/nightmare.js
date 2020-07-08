@@ -1199,15 +1199,13 @@ const stateNames = [
     'Vermont', 'Virginia', 'Washington', 'WestVirginia', 'Wisconsin', 'Wyoming'
 ];
 
-const stateObj = {
-    Alabama: [], Alaska: [], Arizona: [], Arkansas: [], California: [], Colorado: [], Connecticut: [],
-    Delaware: [], DistrictofColumbia: [], Florida: [], Georgia: [], Hawaii: [], Idaho: [], Illinois: [], Indiana: [], Iowa: [], Kansas: [],
-    Kentucky: [], Louisiana: [], Maine: [], Maryland: [], Massachusetts: [], Michigan: [], Minnesota: [],
-    Mississippi: [], Missouri: [], Montana: [], Nebraska: [], Nevada: [], NewHampshire: [], NewJersey: [],
-    NewMexico: [], NewYork: [], NorthCarolina: [], NorthDakota: [], Ohio: [], Oklahoma: [], Oregon: [],
-    Pennsylvania: [], RhodeIsland: [], SouthCarolina: [], SouthDakota: [], Tennessee: [], Texas: [], Utah: [],
-    Vermont: [], Virginia: [], Washington: [], WestVirginia: [], Wisconsin: [], Wyoming: []
-}
+const stateAbbreviations = [
+    'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA',
+    'HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA',
+    'MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND',
+    'OH','OK','OR','PA','RI','SC','SD','TN','TX','UT',
+    'VT','VA','WA','WV','WI','WY'
+];
 
 vo(run)(function (err, result) {
     if (err) throw err;
@@ -1226,15 +1224,17 @@ vo(run)(function (err, result) {
 
 //     mayors.push({
 //       name: $('ul').find('b').text(),
-//       city: $('ul').text().split($('ul').find('b').text())[1].split('P')[0],
+//       city: $('ul').text().split($('ul').find('b').text())[1].split('Population')[0],
 //       image: $('ul').find('img').attr('src'),
-//       website: $('ul').find('a').attr('href')
+//       website: $('ul').find('a').attr('href'),
+//       election: $('ul').text().split($('ul').find('b').text())[1].split(': ')[2],
+//       email: $('ul').text()
 //     })
 
 //     return mayors;
 //   }
 
-//   for (var i = 0; i < links.length; i++)
+//   for (var i = 2; i < 3; i++)
 //   {
 //     yield nightmare
 //       .goto(links[i].link)
@@ -1263,12 +1263,24 @@ function* run() {
         const $ = cheerio.load(html);
 
         $('ul').each(function () {
-            state.push({
-                name: $(this).find('b').text(),
-                city: $(this).text().split($(this).find('b').text())[1].split('P')[0],
-                image: $(this).find('img').attr('src'),
-                website: $(this).find('a').attr('href'),
-                key: parseInt(Math.random() * 1500)
+            let name = $(this).find('b').text()
+            let city = $(this).text().split(name)[1].split('Population')[0]
+            let image = $(this).find('img').attr('src')
+            let website = $(this).find('a').attr('href')
+            let electionDate = $(this).text().split(name)[1].split(': ')[2].split('BioPhone')[0]
+            let phone = $(this).text().split(name)[1].split('Phone: ')[1].split('Email: ')[0]
+            let email = $(this).text().split(name)[1].split('Email: ')[1].replace('\n', '')
+
+            mayors.push({
+                name: name,
+                city: city,
+                state: state,
+                image: image,
+                website: website,
+                electionDate: electionDate,
+                phone: phone,
+                email: email,
+                key: parseInt(Math.random() * 10000)
             })
         })
 
@@ -1325,13 +1337,14 @@ function* run() {
             .wait(3000)
             .evaluate(() => document.querySelector('div.post-content').innerHTML)
             .then(response => {
-                getData(response, stateObj[stateNames[i]]);
+                getData(response, stateAbbreviations[i]);
             }).catch(err => {
                 console.log(err);
             });
     }
 
-    console.log(JSON.stringify(stateObj, undefined, 4));
+    console.log('export default stateMayorData = ')
+    console.log(JSON.stringify(mayors, undefined, 4));
 
     yield nightmare.end();
 }

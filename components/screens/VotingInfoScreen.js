@@ -1,85 +1,196 @@
-import React, { Component, useState } from 'react'
-import { Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
-import WebView from 'react-native-webview';
+import React, { Component } from 'react'
+import { Text, View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
 import Constants from 'expo-constants';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import stateVotingData from '../stateVotingData';
+import { FlatList } from 'react-native-gesture-handler';
 
-export default class VotingInfoScreen extends Component {
+const api_key = 'AIzaSyCElhp5ZT45S4lHLnZRC-mmRs1c14uyzto';
 
-    onNavigationStateChange = navState => {
-        if (navState.url.indexOf('https://www.google.com') === 0) {
-            const regex = /#access_token=(.+)/;
-            let accessToken = navState.url.match(regex)[1];
-            console.log(accessToken);
+class PrimaryElections extends Component {
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            isLoading: true,
+            electionIDs: [],
+            primaryElections: []
         }
-    };
-
-    state = {
-        stateName: ''
     }
 
-    changeHandler = (val) => {
-        const ifState = stateVotingData.find(({ state }) => state == val.nativeEvent.text)
+    address = 'Dallas%2C%20Texas'
+    electionUrl = `https://www.googleapis.com/civicinfo/v2/elections?key=${api_key}`
 
-        if (ifState !== undefined)
-            this.setState({
-                stateName: val.nativeEvent.text
+    componentDidMount() {
+        this.electionQuery()
+    }
+
+    electionQuery = () => {
+        let req = new Request(this.electionUrl, {
+            method: 'Get'
+        })
+
+        fetch(req)
+            .then(response => response.json())
+            .then(response => {
+                let data = response.elections.filter(elem => {
+                    // Remeber to change to state name
+                    return elem.name.includes('Texas')
+                })
+
+                let ids = []
+
+                for (let i = 0; i < data.length; i++)
+                    ids.push(data[i].id)
+
+                this.setState({
+                    electionIDs: ids
+                })
+
+                this.state.electionIDs.forEach(elem => {
+                    this.voterInfoQuery(elem)
+                })
             })
-        else
-            this.setState({
-                stateName: ''
+            .catch(console.log)
+    }
+
+    voterInfoQuery = (id) => {
+        let voterInfoUrl = `https://www.googleapis.com/civicinfo/v2/voterinfo?address=${this.address}&electionId=${id}&key=${api_key}`
+        
+        let req = new Request(voterInfoUrl, {
+            method: 'Get'
+        })
+
+        fetch(req)
+            .then(response => response.json())
+            .then(response => {
+                let election = response.state[0]
+                election.electionID = response.election.id
+                election.electionName = response.election.name
+                election.electionDate = response.election.electionDay
+
+                let data = [...this.state.primaryElections, election]
+
+                this.setState({
+                    primaryElections: data,
+                    isLoading: false
+                })
             })
+            .catch(console.log)
     }
 
     render() {
-        const stateObj = stateVotingData.find(({ state }) => state == this.state.stateName)
-
-        const web = this.state.stateName ? (
-            <WebView
-                source={{
-                    uri: stateObj.website,
-                }}
-                onNavigationStateChange={this.onNavigationStateChange}
-                startInLoadingState
-                scalesPageToFit
-                javaScriptEnabled
-                style={{ flex: 1, marginTop: 24 }}
-            />
-        ) : (
-                <View>
-                    <Text>Hello Please Wait</Text>
-                </View>
-            )
-
-        return (
+        return(
             <View style={styles.container}>
-                {/* Back Button */}
-                <TouchableOpacity onPress={() => {
-                    this.props.navigation.goBack();
-                }}>
-                    <MaterialCommunityIcons name='backburger' size={24} color='black' style={styles.backButton} />
-                </TouchableOpacity>
-                {/* Title: State Voting Info */}
-                <Text>State Voting Information</Text>
-                {/* input state */}
-                <TextInput
-                    style={styles.input}
-                    placeholder='Type in your state'
-                    onSubmitEditing={this.changeHandler}
-                />
-                {/* Webview */}
-                {web}
+                { this.state.isLoading ? (
+                    <ActivityIndicator/>
+                ) : (
+                    <FlatList
+                        data={this.state.primaryElections}
+                        renderItem={({item}) => (
+                            <View>
+                                <Text>{item.electionID}</Text>
+                            </View>
+                        )}
+                        keyExtractor={item => item.electionID}
+                    />
+                )}
             </View>
         )
     }
 }
 
+class GeneralElections extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            isLoading: true,
+            generalElections: []
+        }
+    }
+
+    address = 'palm%20coast'
+
+    voterInfoUrl = `https://www.googleapis.com/civicinfo/v2/voterinfo?address=${this.address}&electionId=2000&key=${api_key}`
+
+    componentDidMount() {
+        this.voterInfo()
+    }
+
+    voterInfo = () => {
+        let req = new Request(this.voterInfoUrl, {
+            method: 'Get'
+        })
+
+        fetch(req)
+            .then(response => response.json())
+            .then(response => {
+                let data = response.contests
+
+                data.map((elem, index) => {
+                    elem.key = parseInt(Math.random() * 100000).toString()
+                })
+
+                this.setState({
+                    generalElections: data,
+                    isLoading: false
+                })
+
+                // console.log(this.state.generalElections);
+                
+            })
+            .catch(console.log)
+    }
+
+    render() {
+        return(
+            <View style={styles.container}>
+                { this.state.isLoading ? (
+                    <ActivityIndicator/>
+                ) : (
+                    <FlatList
+                        data={this.state.generalElections}
+                        renderItem={({item}) => (
+                            <View style={{margin: 10}}>
+                                {/* Election type */}
+                                <Text>Election type: {item.type}</Text>
+                                {/* Office */}
+                                { item.office !== undefined && <Text>Position: {item.office}</Text> }
+                                <Text>District: {item.district.scope}</Text>
+                                { item.candidates !== undefined && item.candidates.map((elem, key) => {
+                                    return(
+                                        <Text key={key}>{elem.name}</Text>
+                                    )
+                                })}
+                            </View>
+                        )}
+                        keyExtractor={item => item.key}
+                    />
+                )}
+            </View>
+        )
+    }
+}
+
+const Tab = createMaterialTopTabNavigator();
+
+export default function VotingInfoScreen() {
+    return(
+        <Tab.Navigator style={{marginTop: Constants.statusBarHeight}}>
+            <Tab.Screen name='General Elections' component={GeneralElections} />
+            <Tab.Screen name='Primary Elections' component={PrimaryElections} />
+        </Tab.Navigator>
+    )
+}
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: Constants.statusBarHeight
+        marginTop: Constants.statusBarHeight,
+        alignItems: 'center'
     },
     input: {
         marginBottom: 10,

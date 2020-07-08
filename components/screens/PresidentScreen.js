@@ -42,12 +42,6 @@ function Presidents(navigation) {
                     <>
                         {/* Pie Chart of Poll Numbers */}
                         <PieChartData />
-                        {/* State voting info Button */}
-                        <TouchableOpacity onPress={() => {
-                            navigation.navigate('Voting Screen');
-                        }}>
-                            <Text style={styles.body}>Voting Info Screen</Text>
-                        </TouchableOpacity>
                     </>
                 }
             />

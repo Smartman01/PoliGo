@@ -34,5 +34,41 @@ export default PresidentData = [
             youtube: ''
         },
         key: '2'
+    },
+    {
+        imageUrl: 'https://cdn.ballotpedia.org/images/1/19/Jorgensen_Square.jpg',
+        name: 'Jo Jorgensen',
+        party: 'Libertarian',
+        description: 'Presidential nominee',
+        runningMate: {
+            name: 'Spike Cohen',
+            imageUrl: 'https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/200/300/SpikeCohen1.jpg'
+        },
+        contactInfo: {
+            website: 'https://joj2020.com/qa/',
+            officeAddress: '',
+            twitter: '',
+            instagram: '',
+            youtube: ''
+        },
+        key: '3'
+    },
+    {
+        imageUrl: 'https://cdn.ballotpedia.org/images/2/22/Howie_Hawkins_Square.jpg',
+        name: 'Howie Hawkins',
+        party: 'Green',
+        description: 'Presidential nominee',
+        runningMate: {
+            name: 'Angela Nicole Walker',
+            imageUrl: 'https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/200/300/AngelaNicoleWalker.jpg'
+        },
+        contactInfo: {
+            website: 'https://howiehawkins.us/',
+            officeAddress: '',
+            twitter: '',
+            instagram: '',
+            youtube: ''
+        },
+        key: '4'
     }
 ]

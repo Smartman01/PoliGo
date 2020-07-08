@@ -1,8 +1,11 @@
-import React, { Component } from 'react'
+import React, { Component, PureComponent } from 'react'
 import { Text, View, TextInput, FlatList, ActivityIndicator, TouchableOpacity, Image } from 'react-native'
 import Constants from 'expo-constants'
 import CheckBox from '@react-native-community/checkbox';
-import { add } from 'react-native-reanimated';
+import profileImage from '../../assets/kindpng_785827.png'
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+
+import stateMayorData from '../stateMayorData'
 
 const api_key = 'AIzaSyCElhp5ZT45S4lHLnZRC-mmRs1c14uyzto';
 
@@ -18,7 +21,10 @@ export default class OfficalsScreen extends Component {
         super(props)
         this.state = {
             isLoading: true,
-            // address: null,
+            location: {
+                city: null,
+                state: null
+            },
             federal: true,
             state: true,
             county: true,
@@ -41,7 +47,7 @@ export default class OfficalsScreen extends Component {
                     if (i === officesData[0][j].officialIndices[k]) {
                         officicalsData[0][i].role = officesData[0][j].name;
 
-                        console.log(officicalsData[0][i])
+                        // console.log(officicalsData[0][i])
 
                         foundRole = 1;
                         break;
@@ -52,6 +58,10 @@ export default class OfficalsScreen extends Component {
                     break;
             }
         }
+
+        this.setState({
+            isLoading: false
+        })
     }
 
     officials = () => {
@@ -62,11 +72,12 @@ export default class OfficalsScreen extends Component {
                     renderItem={({ item }) => (
                         <View>
                             <TouchableOpacity>
-                                <Image source={{uri: item.photoUrl}} style={{width: 100, height: 100}}/>
+                                {item.photoUrl !== undefined ? <Image source={{uri: item.photoUrl}} style={{width: 100, height: 100}}/>
+                                    : <Image source={profileImage} style={{ width: 100, height: 100}} />}
                                 <Text>{item.name}</Text>
                                 <Text>{item.party}</Text>
                                 <Text>{item.role}</Text>
-                                <Text>Socials: </Text>
+                                <Text></Text>
                             </TouchableOpacity>
                         </View>
                     )}
@@ -97,7 +108,11 @@ export default class OfficalsScreen extends Component {
                 this.setState({
                     officicalsData: data,
                     officesData: office,
-                    isLoading: false
+                    
+                    location: {
+                        city: response.normalizedInput.city,
+                        state: response.normalizedInput.state
+                    }
                 })
 
                 // console.log(Object.keys(this.state.officicalsData[0]).length);
@@ -127,7 +142,11 @@ export default class OfficalsScreen extends Component {
                 this.setState({
                     officicalsData: data,
                     officesData: office,
-                    isLoading: false
+                    
+                    location: {
+                        city: response.normalizedInput.city,
+                        state: response.normalizedInput.state
+                    }
                 })
 
                 this.findOfficialRole()
@@ -156,7 +175,11 @@ export default class OfficalsScreen extends Component {
                 this.setState({
                     officicalsData: data,
                     officesData: office,
-                    isLoading: false
+                    
+                    location: {
+                        city: response.normalizedInput.city,
+                        state: response.normalizedInput.state
+                    }
                 })
 
                 this.findOfficialRole()
@@ -185,7 +208,11 @@ export default class OfficalsScreen extends Component {
                 this.setState({
                     officicalsData: data,
                     officesData: office,
-                    isLoading: false
+                    
+                    location: {
+                        city: response.normalizedInput.city,
+                        state: response.normalizedInput.state
+                    }
                 })
 
                 this.findOfficialRole()
@@ -214,7 +241,11 @@ export default class OfficalsScreen extends Component {
                 this.setState({
                     officicalsData: data,
                     officesData: office,
-                    isLoading: false
+                    
+                    location: {
+                        city: response.normalizedInput.city,
+                        state: response.normalizedInput.state
+                    }
                 })
 
                 this.findOfficialRole()
@@ -230,7 +261,8 @@ export default class OfficalsScreen extends Component {
 
         this.setState({
             officicalsData : [],
-            officesData: []
+            officesData: [],
+            isLoading: true
         })
 
         if (local && county && state && federal) {
@@ -249,6 +281,7 @@ export default class OfficalsScreen extends Component {
     }
 
     render() {
+        let { location } = this.state
         return (
             <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
                 {/* Searchbar */}
@@ -284,6 +317,14 @@ export default class OfficalsScreen extends Component {
                             : this.setState({ federal: true })}
                     /><Text>Federal</Text>
                 </View>
+                <TouchableOpacity onPress={() => {
+                        if (location.city !== null)
+                            this.props.navigation.navigate('Mayors Screen', {location})
+                        else
+                            alert('Please input your city first')
+                }}>
+                        <Text>Find your Mayor</Text>
+                </TouchableOpacity>
                 {/* Flatlist of data */}
                 {
                     this.state.isLoading ? (<ActivityIndicator size={'large'}/>) : (<this.officials/>)
@@ -292,3 +333,103 @@ export default class OfficalsScreen extends Component {
         )
     }
 }
+
+// class MayorsScreen extends PureComponent {
+//     constructor(props) {
+//         super(props);
+//         this.state = {
+//             showState: false,
+//             stateData: {},
+//             cityData: {}
+//         };
+//     }
+
+//     componentDidMount() {
+//         let stateData = stateMayorData.filter(elem => {
+//             return elem.state == this.props.location.state
+//         })
+
+//         let cityData = stateMayorData.filter(elem => {
+//             return elem.city == this.props.location.city + ', ' + this.props.location.state
+//         })
+
+//         this.setState({
+//             stateData: stateData,
+//             cityData: cityData
+//         })
+//     }
+
+//     render() {
+
+//         const { stateData, cityData } = this.state
+
+//         function ShowStateData() {
+//             return (
+//                 <FlatList
+//                     data={stateData}
+//                     renderItem={({ item }) => (
+//                         <View style={{ margin: 10, alignItems: 'center', backgroundColor: '#fff' }}>
+//                             <Image source={{ uri: item.image }} style={{ width: 100, height: 100 }} />
+//                             <Text>{item.city}</Text>
+//                             <Text>{item.name}</Text>
+//                             <Text>{item.website}</Text>
+//                             <Text>{item.electionDate}</Text>
+//                         </View>
+//                     )}
+//                     keyExtractor={(item) => item.key.toString()}
+//                 />
+//             );
+//         }
+
+//         function ShowCityData() {
+//             return (
+//                 <FlatList
+//                     data={cityData}
+//                     renderItem={({ item }) => (
+//                         <View style={{ margin: 20, alignItems: 'center', backgroundColor: '#fff' }}>
+//                             <Image source={{ uri: item.image }} style={{ width: 100, height: 100 }} />
+//                             <Text>{item.city}</Text>
+//                             <Text>{item.name}</Text>
+//                             <Text>{item.website}</Text>
+//                         </View>
+//                     )}
+//                     keyExtractor={(item) => item.key}
+//                 />
+//             )
+//         }
+
+//         return (
+//             <View style={{ marginTop: 20, flex: 1 }}>
+//                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+//                     <CheckBox
+//                         disabled={false}
+//                         value={this.state.showState}
+//                         onValueChange={() => this.state.showState ? this.setState({
+//                             showState: false
+//                         }) : this.setState({
+//                             showState: true
+//                         })}
+//                     />
+//                     <Text>State Mayors</Text>
+//                 </View>
+
+//                 {this.state.showState ? <ShowStateData /> : <ShowCityData />}
+//             </View>
+//         );
+//     }
+// }
+
+
+// const Tab = createMaterialTopTabNavigator();
+
+// export default function OfficialsScreen() {
+//     return(
+//         <Tab.Navigator style={{marginTop: Constants.statusBarHeight}}>
+//             <Tab.Screen name='Mayors' component={GeneralElections} />
+//             <Tab.Screen name='Local Officials' component={GeneralElections} />
+//             <Tab.Screen name='County Officials' component={GeneralElections} />
+//             <Tab.Screen name='State Officials' component={GeneralElections} />
+//             <Tab.Screen name='Federal Officials' component={GeneralElections} />
+//         </Tab.Navigator>
+//     )
+// }
