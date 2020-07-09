@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { Text, View, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native'
 import { useFonts, Raleway_700Bold, Raleway_400Regular } from '@expo-google-fonts/raleway';
 import { AppLoading } from 'expo';
 import Constants from 'expo-constants';
+import Modal, { ModalFooter, ModalButton, ModalContent } from 'react-native-modals';
 
 import PresidentData from '../PresidentData';
 import PieChartData from '../PieChartData'
+import { TextInput } from 'react-native-gesture-handler';
 
 function Presidents(navigation) {
     return (
@@ -49,6 +51,33 @@ function Presidents(navigation) {
     )
 }
 
+class Popup extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            address: null
+        }
+    }
+
+    render() {
+        return(
+            <Modal visible={this.state.address === null}>
+                <ModalContent>
+                    <TextInput 
+                        placeholder={'Please enter your City, State'}
+                        onSubmitEditing={(val) => {
+                            this.setState({
+                                address: val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
+                            })
+                        }}
+                    />
+                </ModalContent>
+            </Modal>
+        )
+    }
+}
+
 export default function PresidentScreen({ navigation }) {
 
     let [fontsLoaded] = useFonts({
@@ -60,7 +89,12 @@ export default function PresidentScreen({ navigation }) {
         return <AppLoading />;
     }
 
-    return Presidents(navigation)
+    return (
+        <>
+            <Popup />
+            {Presidents(navigation)}
+        </>
+    )
 }
 
 const styles = StyleSheet.create({
