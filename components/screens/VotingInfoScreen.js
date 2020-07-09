@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { Text, View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { Text, View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, AsyncStorage } from 'react-native'
 import Constants from 'expo-constants';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import stateVotingData from '../stateVotingData';
+import stateObjects from '../stateObjects'
 import { FlatList } from 'react-native-gesture-handler';
 
 const api_key = 'AIzaSyCElhp5ZT45S4lHLnZRC-mmRs1c14uyzto';
@@ -16,15 +17,32 @@ class PrimaryElections extends Component {
         this.state = {
             isLoading: true,
             electionIDs: [],
-            primaryElections: []
+            primaryElections: [],
+            address: null,
+            stateName: null
         }
     }
-
-    address = 'Dallas%2C%20Texas'
     electionUrl = `https://www.googleapis.com/civicinfo/v2/elections?key=${api_key}`
 
-    componentDidMount() {
-        this.electionQuery()
+    async componentDidMount() {
+        try {
+            let address = await AsyncStorage.getItem('address')
+
+            if (address !== null) {
+                let stateName = address.split('%2c%20')[1].toUpperCase()
+                stateName = stateObjects[stateName]
+
+                this.setState({
+                    address: address,
+                    stateName: stateName
+                })
+                
+                this.electionQuery()
+            }
+        } catch (err) {
+            alert(err)
+        }
+
     }
 
     electionQuery = () => {
@@ -37,7 +55,7 @@ class PrimaryElections extends Component {
             .then(response => {
                 let data = response.elections.filter(elem => {
                     // Remeber to change to state name
-                    return elem.name.includes('Texas')
+                    return elem.name.includes(this.state.stateName)
                 })
 
                 let ids = []
@@ -85,7 +103,10 @@ class PrimaryElections extends Component {
         return(
             <View style={styles.container}>
                 { this.state.isLoading ? (
-                    <ActivityIndicator/>
+                    <>
+                        <ActivityIndicator size='large'/>
+                        <Text>If Loads forever there is no data</Text>
+                    </>
                 ) : (
                     <FlatList
                         data={this.state.primaryElections}
@@ -108,20 +129,33 @@ class GeneralElections extends Component {
         super(props)
         this.state = {
             isLoading: true,
-            generalElections: []
+            generalElections: [],
+            address: null
         }
     }
 
-    address = 'palm%20coast'
+    async componentDidMount() {
+        try {
+            let address = await AsyncStorage.getItem('address')
 
-    voterInfoUrl = `https://www.googleapis.com/civicinfo/v2/voterinfo?address=${this.address}&electionId=2000&key=${api_key}`
+            // console.log(address)
 
-    componentDidMount() {
-        this.voterInfo()
+            if (address !== null) {
+                this.setState({
+                    address: address
+                })
+
+                this.voterInfo()
+            }
+        } catch (err) {
+            alert(err)
+        }
     }
 
     voterInfo = () => {
-        let req = new Request(this.voterInfoUrl, {
+        let voterInfoUrl = `https://www.googleapis.com/civicinfo/v2/voterinfo?address=${this.state.address}&electionId=2000&key=${api_key}`
+
+        let req = new Request(voterInfoUrl, {
             method: 'Get'
         })
 

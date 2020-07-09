@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native'
+import { Text, View, StyleSheet, Image, FlatList, TouchableOpacity, AsyncStorage } from 'react-native'
 import { useFonts, Raleway_700Bold, Raleway_400Regular } from '@expo-google-fonts/raleway';
 import { AppLoading } from 'expo';
 import Constants from 'expo-constants';
@@ -60,16 +60,42 @@ class Popup extends Component {
         }
     }
 
+    async componentDidMount() {
+        try {
+            let address = await AsyncStorage.getItem('address')
+
+            if (address !== null) {
+                this.setState({
+                    address: address
+                })
+            }
+        } catch (err) {
+            alert(err)
+        }
+    }
+
+    save = async (address) => {
+        try {
+            await AsyncStorage.setItem('address', address.replace(/ /g, '%20').replace(',', '%2C').toLowerCase())
+            await AsyncStorage.setItem('UneditedAddress', address)
+        } catch (err) {
+            alert(err)
+        }
+    }
+
     render() {
         return(
             <Modal visible={this.state.address === null}>
                 <ModalContent>
+                    <Text>State must be the state code. Ex: Florida = FL</Text>
                     <TextInput 
                         placeholder={'Please enter your City, State'}
                         onSubmitEditing={(val) => {
                             this.setState({
-                                address: val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
+                                address: val.nativeEvent.text
                             })
+
+                            this.save(val.nativeEvent.text)
                         }}
                     />
                 </ModalContent>

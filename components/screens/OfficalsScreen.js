@@ -1,11 +1,12 @@
 import React, { Component, PureComponent } from 'react'
-import { Text, View, TextInput, FlatList, ActivityIndicator, TouchableOpacity, Image } from 'react-native'
+import { Text, View, TextInput, FlatList, ActivityIndicator, TouchableOpacity, Image, AsyncStorage } from 'react-native'
 import Constants from 'expo-constants'
 import CheckBox from '@react-native-community/checkbox';
 import profileImage from '../../assets/kindpng_785827.png'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import stateMayorData from '../stateMayorData'
+import stateObjects from '../stateObjects'
 
 const api_key = 'AIzaSyCElhp5ZT45S4lHLnZRC-mmRs1c14uyzto';
 
@@ -25,24 +26,29 @@ class FederalScreen extends Component {
                 city: null,
                 state: null
             },
-            federal: true,
             officicalsData: [],
-            officesData: []
+            officesData: [],
+            address: null
         }
     }
 
-    address = 'palm%20coast'
+    async componentDidMount() {
+        try {
+            let address = await AsyncStorage.getItem('address')
 
-    componentDidMount() {
-        //if (this.props.address !== null) {
-            this.setState({
-                officicalsData: [],
-                officesData: [],
-                isLoading: true
-            })
-    
-            this.federal()
-        //}
+            if (address !== null) {
+                this.setState({
+                    officicalsData: [],
+                    officesData: [],
+                    isLoading: true,
+                    address: address
+                })
+
+                this.federal()
+            }
+        } catch (err) {
+            alert(err)
+        }
     }
 
     findOfficialRole = () => {
@@ -99,7 +105,7 @@ class FederalScreen extends Component {
     }
 
     federal = () => {
-        let federalUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.address}&includeOffices=true&levels=country&key=${api_key}`;
+        let federalUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.state.address}&includeOffices=true&levels=country&key=${api_key}`;
 
         let req = new Request(federalUrl, {
             method: 'Get'
@@ -167,24 +173,29 @@ class StateScreen extends Component {
                 city: null,
                 state: null
             },
-            state: true,
             officicalsData: [],
-            officesData: []
+            officesData: [],
+            address: null
         }
     }
 
-    address = 'palm%20coast'
+    async componentDidMount() {
+        try {
+            let address = await AsyncStorage.getItem('address')
 
-    componentDidMount() {
-        // if (this.props.address !== null) {
-            this.setState({
-                officicalsData: [],
-                officesData: [],
-                isLoading: true
-            })
-    
-            this.stateFunc()
-        //}
+            if (address !== null) {
+                this.setState({
+                    officicalsData: [],
+                    officesData: [],
+                    isLoading: true,
+                    address: address
+                })
+        
+                this.stateFunc()
+            }
+        } catch (err) {
+            alert(err)
+        }
     }
 
     findOfficialRole = () => {
@@ -241,7 +252,7 @@ class StateScreen extends Component {
     }
 
     stateFunc = () => {
-        let stateUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.address}&includeOffices=true&levels=administrativeArea1&key=${api_key}`;
+        let stateUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.state.address}&includeOffices=true&levels=administrativeArea1&key=${api_key}`;
 
         let req = new Request(stateUrl, {
             method: 'Get'
@@ -309,26 +320,30 @@ class CountyAndLocalScreen extends Component {
                 city: null,
                 state: null
             },
-            county: true,
-            local: true,
             officicalsData: [],
-            officesData: []
+            officesData: [],
+            address: null
         }
     }
 
-    address = 'palm%20coast'
+    async componentDidMount() {
+        try {
+            let address = await AsyncStorage.getItem('address')
 
-    componentDidMount() {
-        //if (this.props.address !== null) {
-            this.setState({
-                officicalsData: [],
-                officesData: [],
-                isLoading: true
-            })
-    
-            this.county()
-            this.local()
-        //}
+            if (address !== null) {
+                this.setState({
+                    officicalsData: [],
+                    officesData: [],
+                    isLoading: true,
+                    address: address
+                })
+        
+                this.county()
+                this.local()
+            }
+        } catch (err) {
+            alert(err)
+        }
     }
 
     findOfficialRole = () => {
@@ -385,7 +400,7 @@ class CountyAndLocalScreen extends Component {
     }
 
     county = () => {
-        let countyUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.address}&includeOffices=true&levels=administrativeArea2&key=${api_key}`;
+        let countyUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.state.address}&includeOffices=true&levels=administrativeArea2&key=${api_key}`;
 
         let req = new Request(countyUrl, {
             method: 'Get'
@@ -418,7 +433,7 @@ class CountyAndLocalScreen extends Component {
     }
 
     local = () => {
-        let localUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.address}&includeOffices=true&levels=locality&key=${api_key}`;
+        let localUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.state.address}&includeOffices=true&levels=locality&key=${api_key}`;
 
         let req = new Request(localUrl, {
             method: 'Get'
@@ -450,20 +465,6 @@ class CountyAndLocalScreen extends Component {
             .catch(console.log)
     }
 
-    changeHandler = (val) => {
-
-        let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
-
-        this.setState({
-            officicalsData: [],
-            officesData: [],
-            isLoading: true
-        })
-
-        this.local(address)
-        this.county(address)
-    }
-
     render() {
         return (
             <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
@@ -490,22 +491,31 @@ class MayorScreen extends PureComponent {
         };
     }
 
-    componentDidMount() {
-        // if (this.props.address !== null) {
-            let stateData = stateMayorData.filter(elem => {
-                return elem.state == 'FL'
-            })
-    
-            let cityData = stateMayorData.filter(elem => {
-                return elem.city.includes('Palm Coast')
-            })
-    
-            this.setState({
-                stateData: stateData,
-                cityData: cityData,
-                isLoading: false
-            })
-        // }
+    async componentDidMount() {
+        try {
+            let address = await AsyncStorage.getItem('address')
+            let unedited = await AsyncStorage.getItem('UneditedAddress')
+
+            if (address !== null) {
+                let stateName = address.split('%2c%20')[1].toUpperCase()
+                
+                let stateData = stateMayorData.filter(elem => {
+                    return elem.state == stateName
+                })
+
+                let cityData = stateMayorData.filter(elem => {
+                    return elem.city.includes(unedited)
+                })
+        
+                this.setState({
+                    stateData: stateData,
+                    cityData: cityData,
+                    isLoading: false
+                })
+            }
+        } catch (err) {
+            alert(err)
+        }
     }
 
     render() {
@@ -568,6 +578,7 @@ class MayorScreen extends PureComponent {
         );
     }
 }
+
 const Tab = createMaterialTopTabNavigator();
 
 function OfficialsScreen() {
