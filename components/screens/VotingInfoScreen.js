@@ -6,7 +6,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import stateVotingData from '../stateVotingData';
 import stateObjects from '../stateObjects'
 
-const api_key = 'AIzaSyCElhp5ZT45S4lHLnZRC-mmRs1c14uyzto';
+import api_key from '../../API_KEY'
 
 class PrimaryElections extends Component {
 
@@ -132,7 +132,12 @@ class PrimaryElections extends Component {
                         data={this.state.primaryElections}
                         renderItem={({item}) => (
                             <View>
-                                <Text>{item.electionID}</Text>
+                                <Text>{item.electionName}</Text>
+                                <Text>{item.electionDate}</Text>
+                                <Text>{item.electionAdministrationBody.name}</Text>
+                                <Text>{item.electionAdministrationBody.votingLocationFinderUrl}</Text>
+                                <Text>{item.electionAdministrationBody.electionInfoUrl}</Text>
+                                {console.log(item)}
                             </View>
                         )}
                         keyExtractor={item => item.electionID}

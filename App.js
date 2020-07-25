@@ -50,7 +50,7 @@ function MyTabs() {
       <Tab.Screen name='Home' component={HomeScreen} />
       <Tab.Screen name='Officials' component={Officials} />
       <Tab.Screen name='VoterInfo' component={VotingScreen} />
-      <Tab.Screen name='Favorites' component={Favorites} />
+      {/* <Tab.Screen name='Favorites' component={Favorites} /> */}
       <Tab.Screen name='Settings' component={Settings} />
     </Tab.Navigator>
   )

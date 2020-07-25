@@ -6,9 +6,8 @@ import profileImage from '../../assets/kindpng_785827.png'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import stateMayorData from '../stateMayorData'
-import stateObjects from '../stateObjects'
 
-const api_key = 'AIzaSyCElhp5ZT45S4lHLnZRC-mmRs1c14uyzto';
+import api_key from '../../API_KEY'
 
 // parsing out division IDs
 var federal_pattern = "ocd-division/country:us";
