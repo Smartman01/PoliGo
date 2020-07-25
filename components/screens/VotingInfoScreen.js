@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
-import { Text, View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, AsyncStorage } from 'react-native'
+import { Text, View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, AsyncStorage, FlatList } from 'react-native'
 import Constants from 'expo-constants';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import stateVotingData from '../stateVotingData';
 import stateObjects from '../stateObjects'
-import { FlatList } from 'react-native-gesture-handler';
 
 const api_key = 'AIzaSyCElhp5ZT45S4lHLnZRC-mmRs1c14uyzto';
 
@@ -36,7 +35,7 @@ class PrimaryElections extends Component {
                     address: address,
                     stateName: stateName
                 })
-                
+
                 this.electionQuery()
             }
         } catch (err) {
@@ -54,7 +53,6 @@ class PrimaryElections extends Component {
             .then(response => response.json())
             .then(response => {
                 let data = response.elections.filter(elem => {
-                    // Remeber to change to state name
                     return elem.name.includes(this.state.stateName)
                 })
 
@@ -75,7 +73,7 @@ class PrimaryElections extends Component {
     }
 
     voterInfoQuery = (id) => {
-        let voterInfoUrl = `https://www.googleapis.com/civicinfo/v2/voterinfo?address=${this.address}&electionId=${id}&key=${api_key}`
+        let voterInfoUrl = `https://www.googleapis.com/civicinfo/v2/voterinfo?address=${this.state.address}&electionId=${id}&key=${api_key}`
         
         let req = new Request(voterInfoUrl, {
             method: 'Get'
@@ -99,9 +97,31 @@ class PrimaryElections extends Component {
             .catch(console.log)
     }
 
+    changeHandler = (val) => {
+        if (val.nativeEvent.text == "")
+            return
+        
+        let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
+
+        let stateName = stateObjects[val.nativeEvent.text.split(', ')[1].toUpperCase()]
+
+        this.setState({
+            isLoading: true,
+            address: address,
+            stateName: stateName,
+            primaryElections: []
+        })
+
+        this.electionQuery()
+    }
+
     render() {
         return(
             <View style={styles.container}>
+                {/* Searchbar */}
+                <TextInput 
+                    placeholder={'City, State'}
+                    onSubmitEditing={(val) => this.changeHandler(val)} />
                 { this.state.isLoading ? (
                     <>
                         <ActivityIndicator size='large'/>
@@ -179,9 +199,28 @@ class GeneralElections extends Component {
             .catch(console.log)
     }
 
+    changeHandler = (val) => {
+        if (val.nativeEvent.text == "")
+            return
+        
+        let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
+
+        this.setState({
+            isLoading: true,
+            address: address,
+            generalElections: []
+        })
+
+        this.voterInfo()
+    }
+
     render() {
         return(
             <View style={styles.container}>
+                {/* Searchbar */}
+                <TextInput 
+                    placeholder={'City, State'}
+                    onSubmitEditing={(val) => this.changeHandler(val)} />
                 { this.state.isLoading ? (
                     <ActivityIndicator/>
                 ) : (

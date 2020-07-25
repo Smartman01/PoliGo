@@ -1,7 +1,7 @@
 import React, { Component, PureComponent } from 'react'
 import { Text, View, TextInput, FlatList, ActivityIndicator, TouchableOpacity, Image, AsyncStorage } from 'react-native'
 import Constants from 'expo-constants'
-import CheckBox from '@react-native-community/checkbox';
+import {CheckBox} from "native-base"
 import profileImage from '../../assets/kindpng_785827.png'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
@@ -55,6 +55,9 @@ class FederalScreen extends Component {
         let { officicalsData, officesData } = this.state
 
         let foundRole = 0, i = 0, j = 0, k = 0;
+
+        if (officicalsData[0] === null)
+        return
 
         for (i = 0; i < Object.keys(officicalsData[0]).length; i++) {
             for (j = 0; j < Object.keys(officesData[0]).length; j++) {
@@ -138,15 +141,19 @@ class FederalScreen extends Component {
     }
 
     changeHandler = (val) => {
+        if (val.nativeEvent.text == "")
+            return
+
         let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
 
         this.setState({
             officicalsData: [],
             officesData: [],
-            isLoading: true
+            isLoading: true,
+            address: address
         })
 
-        this.federal(address)
+        this.federal()
     }
 
     render() {
@@ -154,7 +161,8 @@ class FederalScreen extends Component {
             <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
                 {/* Searchbar */}
                 <TextInput 
-                    placeholder={'City, State'} />
+                    placeholder={'City, State'}
+                    onSubmitEditing={(val) => this.changeHandler(val)} />
                 {/* Flatlist of data */}
                 {
                     this.state.isLoading ? (<ActivityIndicator size={'large'} />) : (<this.officials />)
@@ -202,6 +210,9 @@ class StateScreen extends Component {
         let { officicalsData, officesData } = this.state
 
         let foundRole = 0, i = 0, j = 0, k = 0;
+
+        if (officicalsData[0] === null)
+            return
 
         for (i = 0; i < Object.keys(officicalsData[0]).length; i++) {
             for (j = 0; j < Object.keys(officesData[0]).length; j++) {
@@ -285,15 +296,19 @@ class StateScreen extends Component {
     }
 
     changeHandler = (val) => {
+        if (val.nativeEvent.text == "")
+            return
+
         let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
 
         this.setState({
             officicalsData: [],
             officesData: [],
-            isLoading: true
+            isLoading: true,
+            address: address
         })
 
-        this.stateFunc(address)
+        this.stateFunc()
     }
 
     render() {
@@ -301,7 +316,8 @@ class StateScreen extends Component {
             <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
                 {/* Searchbar */}
                 <TextInput 
-                    placeholder={'City, State'} />
+                    placeholder={'City, State'}
+                    onSubmitEditing={(val) => this.changeHandler(val)} />
                 {/* Flatlist of data */}
                 {
                     this.state.isLoading ? (<ActivityIndicator size={'large'} />) : (<this.officials />)
@@ -351,6 +367,9 @@ class CountyAndLocalScreen extends Component {
 
         let foundRole = 0, i = 0, j = 0, k = 0;
 
+        if (officicalsData[0] === null)
+            return
+        
         for (i = 0; i < Object.keys(officicalsData[0]).length; i++) {
             for (j = 0; j < Object.keys(officesData[0]).length; j++) {
                 foundRole = 0;
@@ -358,8 +377,6 @@ class CountyAndLocalScreen extends Component {
                 for (k = 0; k < officesData[0][j].officialIndices.length; k++) {
                     if (i === officesData[0][j].officialIndices[k]) {
                         officicalsData[0][i].role = officesData[0][j].name;
-
-                        // console.log(officicalsData[0][i])
 
                         foundRole = 1;
                         break;
@@ -465,12 +482,31 @@ class CountyAndLocalScreen extends Component {
             .catch(console.log)
     }
 
+    changeHandler = (val) => {
+        if (val.nativeEvent.text == "")
+            return
+
+        let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
+
+        this.setState({
+            officicalsData: [],
+            officesData: [],
+            isLoading: true,
+            address: address
+        })
+
+        this.county()
+        this.local()
+    }
+
     render() {
         return (
             <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
                 {/* Searchbar */}
                 <TextInput 
-                    placeholder={'City, State'}/>
+                    placeholder={'City, State'}
+                    onSubmitEditing={(val) => this.changeHandler(val)}
+                />
                 {/* Flatlist of data */}
                 {
                     this.state.isLoading ? (<ActivityIndicator size={'large'} />) : (<this.officials />)
@@ -497,25 +533,44 @@ class MayorScreen extends PureComponent {
             let unedited = await AsyncStorage.getItem('UneditedAddress')
 
             if (address !== null) {
-                let stateName = address.split('%2c%20')[1].toUpperCase()
-                
-                let stateData = stateMayorData.filter(elem => {
-                    return elem.state == stateName
-                })
-
-                let cityData = stateMayorData.filter(elem => {
-                    return elem.city.includes(unedited)
-                })
-        
-                this.setState({
-                    stateData: stateData,
-                    cityData: cityData,
-                    isLoading: false
-                })
+                this.mayors(address, unedited)
             }
         } catch (err) {
             alert(err)
         }
+    }
+
+    mayors = (address, unedited) => {
+        let stateName = address.split('%2c%20')[1].toUpperCase()
+                
+        let stateData = stateMayorData.filter(elem => {
+            return elem.state == stateName
+        })
+
+        let cityData = stateMayorData.filter(elem => {
+            return elem.city.includes(unedited.split(', ')[0])
+        })
+
+        this.setState({
+            stateData: stateData,
+            cityData: cityData,
+            isLoading: false
+        })
+    }
+
+    changeHandler = (val) => {
+        if (val.nativeEvent.text == "")
+            return
+        
+        let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
+
+        this.state = {
+            isLoading: true,
+            stateData: {},
+            cityData: {}
+        }
+
+        this.mayors(address, val.nativeEvent.text)
     }
 
     render() {
@@ -559,18 +614,18 @@ class MayorScreen extends PureComponent {
         return (
             <View style={{ marginTop: 20, flex: 1 }}>
                 <TextInput 
-                    placeholder={'City, State'} />
+                    placeholder={'City, State'}
+                    onSubmitEditing={(val) => this.changeHandler(val)} />
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CheckBox
-                        disabled={false}
-                        value={this.state.showState}
-                        onValueChange={() => this.state.showState ? this.setState({
+                        checked={this.state.showState}
+                        onPress={() => this.state.showState ? this.setState({
                             showState: false
                         }) : this.setState({
                             showState: true
                         })}
                     />
-                    <Text>State Mayors</Text>
+                    <Text style={{marginLeft: 20}}>State Mayors</Text>
                 </View>
 
                 { this.state.isLoading ? <ActivityIndicator /> :(this.state.showState ? <ShowStateData /> : <ShowCityData />)}

@@ -4,7 +4,7 @@ export default pollAvgData =
       svg: {
          fill: "#0000ff"
       }, 
-      amount: 49.6, 
+      amount: 49.3, 
       key: 1, 
       candidate: "Biden"
    }, 
@@ -12,7 +12,7 @@ export default pollAvgData =
       svg: {
          fill: "#ff0000"
       }, 
-      amount: 40.1, 
+      amount: 41.0, 
       key: 2, 
       candidate: "Trump"
    }, 
@@ -20,7 +20,7 @@ export default pollAvgData =
       svg: {
          fill: "#fff"
       }, 
-      amount: 9.5, 
+      amount: 8.3, 
       key: 3, 
       candidate: "Other"
    }
