@@ -65,9 +65,6 @@ class FederalScreen extends Component {
                 for (k = 0; k < officesData[0][j].officialIndices.length; k++) {
                     if (i === officesData[0][j].officialIndices[k]) {
                         officicalsData[0][i].role = officesData[0][j].name;
-
-                        // console.log(officicalsData[0][i])
-
                         foundRole = 1;
                         break;
                     }
@@ -220,9 +217,6 @@ class StateScreen extends Component {
                 for (k = 0; k < officesData[0][j].officialIndices.length; k++) {
                     if (i === officesData[0][j].officialIndices[k]) {
                         officicalsData[0][i].role = officesData[0][j].name;
-
-                        // console.log(officicalsData[0][i])
-
                         foundRole = 1;
                         break;
                     }

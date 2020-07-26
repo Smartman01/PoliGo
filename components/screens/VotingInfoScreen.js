@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, AsyncStorage, FlatList } from 'react-native'
+import { Text, View, TextInput, StyleSheet, ActivityIndicator, AsyncStorage, FlatList } from 'react-native'
 import Constants from 'expo-constants';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
@@ -137,7 +137,6 @@ class PrimaryElections extends Component {
                                 <Text>{item.electionAdministrationBody.name}</Text>
                                 <Text>{item.electionAdministrationBody.votingLocationFinderUrl}</Text>
                                 <Text>{item.electionAdministrationBody.electionInfoUrl}</Text>
-                                {console.log(item)}
                             </View>
                         )}
                         keyExtractor={item => item.electionID}
@@ -162,8 +161,6 @@ class GeneralElections extends Component {
     async componentDidMount() {
         try {
             let address = await AsyncStorage.getItem('address')
-
-            // console.log(address)
 
             if (address !== null) {
                 this.setState({
