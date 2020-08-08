@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, Image, FlatList, TouchableOpacity, AsyncStorage } from 'react-native'
+import { Text, View, StyleSheet, Image, FlatList, TouchableOpacity, AsyncStorage, TextInput } from 'react-native'
 import { useFonts, Raleway_700Bold, Raleway_400Regular } from '@expo-google-fonts/raleway';
 import { AppLoading } from 'expo';
 import Constants from 'expo-constants';
 import Modal, { ModalFooter, ModalButton, ModalContent } from 'react-native-modals';
 
 import PresidentData from '../PresidentData';
-import PieChartData from '../PieChartData'
-import { TextInput } from 'react-native-gesture-handler';
+import PieChartData from '../PieChartData';
 
 function Presidents(navigation) {
     return (

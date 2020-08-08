@@ -9,7 +9,7 @@ import VotingInfoScreen from './components/screens/VotingInfoScreen';
 import OfficialsScreen from './components/screens/OfficalsScreen';
 import FavoritesScreen from './components/screens/FavoritesScreen';
 import SettingsScreen from './components/screens/SettingsScreen';
-
+import PresPoliciesScreen from './components/screens/PresidentPoliciesScreen';
 
 function HomeScreen({ navigation }) {
   return (
@@ -21,6 +21,12 @@ function PresidentAboutScreen({ route, navigation }) {
   const { item } = route.params;
 
   return <AboutPresident navigation={navigation} president={item} />
+}
+
+function PresidentPoliciesScreen({ route, navigation }) {
+  const { president } = route.params;
+
+  return <PresPoliciesScreen navigation={navigation} president={president} />
 }
 
 function VotingScreen({ navigation }) {
@@ -66,6 +72,11 @@ export default function App() {
           }}
         />
         <Main.Screen name='About President' component={PresidentAboutScreen}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Main.Screen name='Policies' component={PresidentPoliciesScreen}
           options={{
             headerShown: false
           }}

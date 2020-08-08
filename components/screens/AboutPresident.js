@@ -12,6 +12,11 @@ export default function AboutPresident({ navigation, president }) {
             }}>
                 <MaterialCommunityIcons name='backburger' size={24} color='black' style={styles.backButton} />
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+                navigation.navigate('Policies', {president})
+            }}>
+                <Text>Policies</Text>
+            </TouchableOpacity>
             <View style={styles.content}>
                 <ScrollView contentContainerStyle={{ alignItems: 'center', }}>
                     {/* President */}
@@ -30,6 +35,8 @@ export default function AboutPresident({ navigation, president }) {
                     {/* Add Button and linking feature */}
                     <Text>Contact Info: {president.contactInfo.website}</Text>
                     {/* Display Social Media and linking feature */}
+                    {/* Policies */}
+                    {/* {Policies(president.name.split(' ')[1].toLowerCase())} */}
                 </ScrollView>
             </View>
         </View>
