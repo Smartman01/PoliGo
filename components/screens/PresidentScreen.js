@@ -7,6 +7,7 @@ import Modal, { ModalFooter, ModalButton, ModalContent } from 'react-native-moda
 
 import PresidentData from '../PresidentData';
 import PieChartData from '../PieChartData';
+import GetLocation from '../GetLocation'
 
 function Presidents(navigation) {
     return (
@@ -116,6 +117,7 @@ export default function PresidentScreen({ navigation }) {
 
     return (
         <>
+            <GetLocation/>
             <Popup />
             {Presidents(navigation)}
         </>
