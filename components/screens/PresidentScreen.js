@@ -5,8 +5,8 @@ import { AppLoading } from 'expo';
 import Constants from 'expo-constants';
 import Modal, { ModalFooter, ModalButton, ModalContent } from 'react-native-modals';
 
-import PresidentData from '../PresidentData';
-import PieChartData from '../PieChartData';
+import PresidentData from '../data/PresidentData';
+import PieChartData from '../data/PieChartData';
 import GetLocation from '../GetLocation'
 
 function Presidents(navigation) {
@@ -51,59 +51,6 @@ function Presidents(navigation) {
     )
 }
 
-class Popup extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            address: null
-        }
-    }
-
-    async componentDidMount() {
-        try {
-            let address = await AsyncStorage.getItem('address')
-
-            if (address !== null) {
-                this.setState({
-                    address: address
-                })
-            }
-        } catch (err) {
-            alert(err)
-        }
-    }
-
-    save = async (address) => {
-        try {
-            await AsyncStorage.setItem('address', address.replace(/ /g, '%20').replace(',', '%2C').toLowerCase())
-            await AsyncStorage.setItem('UneditedAddress', address)
-        } catch (err) {
-            alert(err)
-        }
-    }
-
-    render() {
-        return(
-            <Modal visible={this.state.address === null}>
-                <ModalContent>
-                    <Text>State must be the state code. Ex: Florida = FL</Text>
-                    <TextInput 
-                        placeholder={'Please enter your City, State'}
-                        onSubmitEditing={(val) => {
-                            this.setState({
-                                address: val.nativeEvent.text
-                            })
-
-                            this.save(val.nativeEvent.text)
-                        }}
-                    />
-                </ModalContent>
-            </Modal>
-        )
-    }
-}
-
 export default function PresidentScreen({ navigation }) {
 
     let [fontsLoaded] = useFonts({
@@ -118,7 +65,6 @@ export default function PresidentScreen({ navigation }) {
     return (
         <>
             <GetLocation/>
-            <Popup />
             {Presidents(navigation)}
         </>
     )

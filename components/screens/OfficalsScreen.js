@@ -5,7 +5,7 @@ import {CheckBox} from "native-base"
 import profileImage from '../../assets/kindpng_785827.png'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import stateMayorData from '../stateMayorData'
+import stateMayorData from '../data/stateMayorData'
 
 import api_key from '../../API_KEY'
 
@@ -33,7 +33,13 @@ class FederalScreen extends Component {
 
     async componentDidMount() {
         try {
-            let address = await AsyncStorage.getItem('address')
+            let jsonValue = await AsyncStorage.getItem('userAddress')
+            let addressObj = null
+
+            if (jsonValue != null)
+                addressObj = JSON.parse(jsonValue)
+
+            let address = addressObj.address
 
             if (address !== null) {
                 this.setState({
@@ -185,7 +191,13 @@ class StateScreen extends Component {
 
     async componentDidMount() {
         try {
-            let address = await AsyncStorage.getItem('address')
+            let jsonValue = await AsyncStorage.getItem('userAddress')
+            let addressObj = null
+
+            if (jsonValue != null)
+                addressObj = JSON.parse(jsonValue)
+
+            let address = addressObj.address
 
             if (address !== null) {
                 this.setState({
@@ -337,7 +349,13 @@ class CountyAndLocalScreen extends Component {
 
     async componentDidMount() {
         try {
-            let address = await AsyncStorage.getItem('address')
+            let jsonValue = await AsyncStorage.getItem('userAddress')
+            let addressObj = null
+
+            if (jsonValue != null)
+                addressObj = JSON.parse(jsonValue)
+
+            let address = addressObj.address
 
             if (address !== null) {
                 this.setState({
@@ -516,32 +534,35 @@ class MayorScreen extends PureComponent {
             isLoading: true,
             showState: false,
             stateData: {},
-            cityData: {}
+            cityData: {},
+            userAddress: {}
         };
     }
 
     async componentDidMount() {
         try {
-            let address = await AsyncStorage.getItem('address')
-            let unedited = await AsyncStorage.getItem('UneditedAddress')
+            let jsonValue = await AsyncStorage.getItem('userAddress')
 
-            if (address !== null) {
-                this.mayors(address, unedited)
+            if (jsonValue != null)
+            {
+                this.setState({userAddress: JSON.parse(jsonValue)})
+                this.mayors()
             }
+
         } catch (err) {
             alert(err)
         }
     }
 
-    mayors = (address, unedited) => {
-        let stateName = address.split('%2c%20')[1].toUpperCase()
+    mayors = () => {
+        let stateName = this.state.userAddress.address.split('%2c%20')[1].toUpperCase()
                 
         let stateData = stateMayorData.filter(elem => {
             return elem.state == stateName
         })
 
         let cityData = stateMayorData.filter(elem => {
-            return elem.city.includes(unedited.split(', ')[0])
+            return elem.city.includes(this.state.userAddress.UneditedAddress.split(', ')[0])
         })
 
         this.setState({

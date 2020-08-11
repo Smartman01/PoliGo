@@ -3,13 +3,13 @@ import { Platform, AsyncStorage } from 'react-native';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 
+import states_hash from './data/states_hash'
+
 export default class GetLocation extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            location: null,
-            reverseLocation: null,
             errorMsg: null
         }
     }
@@ -30,24 +30,30 @@ export default class GetLocation extends Component {
 
                 let location = await Location.getCurrentPositionAsync({});
 
-                let reverseLocation = await Location.reverseGeocodeAsync({ latitude: 29.518314, longitude: -81.259981 })
-
-                this.setState({
-                    location: location,
-                    reverseLocation: reverseLocation[0]
+                let reverseLocation = await Location.reverseGeocodeAsync({
+                    latitude: location.coords.latitude,
+                    longitude: location.coords.longitude
                 })
 
-                console.log(location.coords.longitude);
-                console.log(location.coords.latitude);
-                console.log(reverseLocation[0]);
+                let address = reverseLocation[0].city + ', ' + states_hash[reverseLocation[0].region]
+
+                this.save(address)
+
+                // console.log(location.coords.longitude);
+                // console.log(location.coords.latitude);
+                // console.log(address);
             })();
         }
     }
 
     save = async (address) => {
+        let userAddress = {
+            address: address.replace(/ /g, '%20').replace(',', '%2C').toLowerCase(),
+            UneditedAddress: address
+        }
+
         try {
-            await AsyncStorage.setItem('address', address.replace(/ /g, '%20').replace(',', '%2C').toLowerCase())
-            await AsyncStorage.setItem('UneditedAddress', address)
+            await AsyncStorage.setItem('userAddress', JSON.stringify(userAddress))
         } catch (err) {
             alert(err)
         }

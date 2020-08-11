@@ -5,7 +5,7 @@ import Constants from 'expo-constants';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Menu, Provider, Modal, Portal } from 'react-native-paper';
 
-import presPolicies from '../presPolicies';
+import presPolicies from '../data/presPolicies';
 
 const Policies = (presidentName) => {
     const [visible, setVisible] = React.useState(false);

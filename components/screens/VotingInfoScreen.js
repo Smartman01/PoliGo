@@ -3,8 +3,8 @@ import { Text, View, TextInput, StyleSheet, ActivityIndicator, AsyncStorage, Fla
 import Constants from 'expo-constants';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import stateVotingData from '../stateVotingData';
-import stateObjects from '../stateObjects'
+import stateVotingData from '../data/stateVotingData';
+import stateObjects from '../data/stateObjects'
 
 import api_key from '../../API_KEY'
 
@@ -25,14 +25,18 @@ class PrimaryElections extends Component {
 
     async componentDidMount() {
         try {
-            let address = await AsyncStorage.getItem('address')
+            let jsonValue = await AsyncStorage.getItem('userAddress')
+            let addressObj = null
 
-            if (address !== null) {
-                let stateName = address.split('%2c%20')[1].toUpperCase()
+            if (jsonValue != null)
+                addressObj = JSON.parse(jsonValue)
+
+            if (addressObj.address !== null) {
+                let stateName = addressObj.address.split('%2c%20')[1].toUpperCase()
                 stateName = stateObjects[stateName]
 
                 this.setState({
-                    address: address,
+                    address: addressObj.address,
                     stateName: stateName
                 })
 
@@ -160,11 +164,15 @@ class GeneralElections extends Component {
 
     async componentDidMount() {
         try {
-            let address = await AsyncStorage.getItem('address')
+            let jsonValue = await AsyncStorage.getItem('userAddress')
+            let addressObj = null
 
-            if (address !== null) {
+            if (jsonValue != null)
+                addressObj = JSON.parse(jsonValue)
+
+            if (addressObj.address !== null) {
                 this.setState({
-                    address: address
+                    address: addressObj.address
                 })
 
                 this.voterInfo()
