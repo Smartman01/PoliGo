@@ -1,9 +1,10 @@
-import React, { Component, PureComponent } from 'react'
+import React, { PureComponent, useState, useEffect } from 'react'
 import { Text, View, TextInput, FlatList, ActivityIndicator, TouchableOpacity, Image, AsyncStorage } from 'react-native'
 import Constants from 'expo-constants'
-import {CheckBox} from "native-base"
+import { CheckBox } from "native-base"
 import profileImage from '../../assets/kindpng_785827.png'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import axios from 'axios'
 
 import stateMayorData from '../data/stateMayorData'
 
@@ -15,16 +16,15 @@ var state_pattern = /ocd-division\/country:us\/state:(\D{2}$)/;
 var county_pattern = /ocd-division\/country:us\/state:\D{2}\/county:\D+/;
 var local_pattern = /ocd-division\/country:us\/state:\D{2}\/place:\D+/;
 
+// Props
+let addressProp = null
+let navigationProp = null
 
-class FederalScreen extends Component {
+class FederalScreen extends PureComponent {
     constructor(props) {
         super(props)
         this.state = {
             isLoading: true,
-            location: {
-                city: null,
-                state: null
-            },
             officicalsData: [],
             officesData: [],
             address: null
@@ -59,16 +59,16 @@ class FederalScreen extends Component {
     findOfficialRole = () => {
         let { officicalsData, officesData } = this.state
 
-        let foundRole = 0, i = 0, j = 0, k = 0;
+        let foundRole;
 
         if (officicalsData[0] === null)
-        return
+            return
 
-        for (i = 0; i < Object.keys(officicalsData[0]).length; i++) {
-            for (j = 0; j < Object.keys(officesData[0]).length; j++) {
+        for (let i = 0; i < officicalsData[0].length; i++) {
+            for (let j = 0; j < officesData[0].length; j++) {
                 foundRole = 0;
 
-                for (k = 0; k < officesData[0][j].officialIndices.length; k++) {
+                for (let k = 0; k < officesData[0][j].officialIndices.length; k++) {
                     if (i === officesData[0][j].officialIndices[k]) {
                         officicalsData[0][i].role = officesData[0][j].name;
                         foundRole = 1;
@@ -129,12 +129,7 @@ class FederalScreen extends Component {
 
                 this.setState({
                     officicalsData: data,
-                    officesData: office,
-
-                    location: {
-                        city: response.normalizedInput.city,
-                        state: response.normalizedInput.state
-                    }
+                    officesData: office
                 })
 
                 this.findOfficialRole()
@@ -162,7 +157,7 @@ class FederalScreen extends Component {
         return (
             <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
                 {/* Searchbar */}
-                <TextInput 
+                <TextInput
                     placeholder={'City, State'}
                     onSubmitEditing={(val) => this.changeHandler(val)} />
                 {/* Flatlist of data */}
@@ -174,15 +169,11 @@ class FederalScreen extends Component {
     }
 }
 
-class StateScreen extends Component {
+class StateScreen extends PureComponent {
     constructor(props) {
         super(props)
         this.state = {
             isLoading: true,
-            location: {
-                city: null,
-                state: null
-            },
             officicalsData: [],
             officesData: [],
             address: null
@@ -206,7 +197,7 @@ class StateScreen extends Component {
                     isLoading: true,
                     address: address
                 })
-        
+
                 this.stateFunc()
             }
         } catch (err) {
@@ -217,16 +208,16 @@ class StateScreen extends Component {
     findOfficialRole = () => {
         let { officicalsData, officesData } = this.state
 
-        let foundRole = 0, i = 0, j = 0, k = 0;
+        let foundRole;
 
         if (officicalsData[0] === null)
             return
 
-        for (i = 0; i < Object.keys(officicalsData[0]).length; i++) {
-            for (j = 0; j < Object.keys(officesData[0]).length; j++) {
+        for (let i = 0; i < officicalsData[0].length; i++) {
+            for (let j = 0; j < officesData[0].length; j++) {
                 foundRole = 0;
 
-                for (k = 0; k < officesData[0][j].officialIndices.length; k++) {
+                for (let k = 0; k < officesData[0][j].officialIndices.length; k++) {
                     if (i === officesData[0][j].officialIndices[k]) {
                         officicalsData[0][i].role = officesData[0][j].name;
                         foundRole = 1;
@@ -288,11 +279,6 @@ class StateScreen extends Component {
                 this.setState({
                     officicalsData: data,
                     officesData: office,
-
-                    location: {
-                        city: response.normalizedInput.city,
-                        state: response.normalizedInput.state
-                    }
                 })
 
                 this.findOfficialRole()
@@ -320,7 +306,7 @@ class StateScreen extends Component {
         return (
             <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
                 {/* Searchbar */}
-                <TextInput 
+                <TextInput
                     placeholder={'City, State'}
                     onSubmitEditing={(val) => this.changeHandler(val)} />
                 {/* Flatlist of data */}
@@ -332,62 +318,74 @@ class StateScreen extends Component {
     }
 }
 
-class CountyAndLocalScreen extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            isLoading: true,
-            location: {
-                city: null,
-                state: null
-            },
-            officicalsData: [],
-            officesData: [],
-            address: null
-        }
-    }
+function Example() {
+    const [isLoading, setIsLoading] = useState(true)
+    const [officialsData, setOfficial] = useState([])
+    const [officesData, setOffice] = useState([])
+    const [address, setAddress] = useState(addressProp)
 
-    async componentDidMount() {
-        try {
-            let jsonValue = await AsyncStorage.getItem('userAddress')
-            let addressObj = null
+    useEffect(() => {
+        async function axiosLookup() {
+            let countyUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${address}&includeOffices=true&levels=administrativeArea2&key=${api_key}`;
+            let localUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${address}&includeOffices=true&levels=locality&key=${api_key}`;
 
-            if (jsonValue != null)
-                addressObj = JSON.parse(jsonValue)
+            // try {
+            //     await axios.get(countyUrl)
+            //     .then(res => {
+            //         const data = res.data.officials
+            //         setOfficial(data)
+            //         // findOfficialRole()
+            //         setIsLoading(false)
+            //     })
+            // } catch (err) {
+            //     alert(err)
+            // }
 
-            let address = addressObj.address
+            axios.all([axios.get(countyUrl), axios.get(localUrl)])
+                .then(axios.spread((...res) => {
+                    let county = res[0].data.officials
+                    let local = res[1].data.officials
 
-            if (address !== null) {
-                this.setState({
-                    officicalsData: [],
-                    officesData: [],
-                    isLoading: true,
-                    address: address
+                    let data = [county, local].filter(elem => {
+                        return elem !== undefined
+                    })
+
+                    setOfficial(data[0])
+
+                    county = res[0].data.offices
+                    local = res[1].data.offices
+
+                    data = [county, local].filter(elem => {
+                        return elem !== undefined
+                    })
+
+                    setOffice(data[0])
+                }))
+                .then(() => {
+                    setIsLoading(false)
                 })
-        
-                this.county()
-                this.local()
-            }
-        } catch (err) {
-            alert(err)
+                .catch(err => {
+                    alert(err)
+                })
         }
-    }
 
-    findOfficialRole = () => {
-        let { officicalsData, officesData } = this.state
+        axiosLookup()
+    }, [address]);
 
-        let foundRole = 0, i = 0, j = 0, k = 0;
+    const findOfficialRole = () => {
+        let foundRole = 0, i, j, k;
+        let data = officialsData
 
-        if (officicalsData[0] === null)
+        if (data.length === 0)
             return
-        
-        for (i = 0; i < Object.keys(officicalsData[0]).length; i++) {
-            for (j = 0; j < Object.keys(officesData[0]).length; j++) {
+
+        for (i = 0; i < data.length; i++) {
+            for (j = 0; j < data.length; j++) {
                 foundRole = 0;
 
-                for (k = 0; k < officesData[0][j].officialIndices.length; k++) {
-                    if (i === officesData[0][j].officialIndices[k]) {
-                        officicalsData[0][i].role = officesData[0][j].name;
+                for (k = 0; k < officesData[j].officialIndices.length; k++) {
+                    if (i === officesData[j].officialIndices[k]) {
+                        data[i].role = officesData[j].name;
 
                         foundRole = 1;
                         break;
@@ -399,132 +397,57 @@ class CountyAndLocalScreen extends Component {
             }
         }
 
-        this.setState({
-            isLoading: false
-        })
+        setOfficial(data)
     }
 
-    officials = () => {
-        return (
-            <View style={{ flex: 1 }}>
-                <FlatList
-                    data={this.state.officicalsData[0]}
-                    renderItem={({ item }) => (
-                        <View>
-                            <TouchableOpacity>
-                                {item.photoUrl !== undefined ? <Image source={{ uri: item.photoUrl }} style={{ width: 100, height: 100 }} />
-                                    : <Image source={profileImage} style={{ width: 100, height: 100 }} />}
-                                <Text>{item.name}</Text>
-                                <Text>{item.party}</Text>
-                                <Text>{item.role}</Text>
-                                <Text></Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                    keyExtractor={item => item.name}
-                />
-            </View>
-        )
-    }
-
-    county = () => {
-        let countyUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.state.address}&includeOffices=true&levels=administrativeArea2&key=${api_key}`;
-
-        let req = new Request(countyUrl, {
-            method: 'Get'
-        })
-
-        fetch(req)
-            .then(response => response.json())
-            .then(response => {
-                let data = [...this.state.officicalsData, response.officials].filter(elem => {
-                    return elem !== undefined
-                })
-
-                let office = [...this.state.officesData, response.offices].filter(elem => {
-                    return elem !== undefined
-                })
-
-                this.setState({
-                    officicalsData: data,
-                    officesData: office,
-
-                    location: {
-                        city: response.normalizedInput.city,
-                        state: response.normalizedInput.state
-                    }
-                })
-
-                this.findOfficialRole()
-            })
-            .catch(console.log)
-    }
-
-    local = () => {
-        let localUrl = `https://www.googleapis.com/civicinfo/v2/representatives?address=${this.state.address}&includeOffices=true&levels=locality&key=${api_key}`;
-
-        let req = new Request(localUrl, {
-            method: 'Get'
-        })
-
-        fetch(req)
-            .then(response => response.json())
-            .then(response => {
-                let data = [...this.state.officicalsData, response.officials].filter(elem => {
-                    return elem !== undefined
-                })
-
-                let office = [...this.state.officesData, response.offices].filter(elem => {
-                    return elem !== undefined
-                })
-
-                this.setState({
-                    officicalsData: data,
-                    officesData: office,
-
-                    location: {
-                        city: response.normalizedInput.city,
-                        state: response.normalizedInput.state
-                    }
-                })
-
-                this.findOfficialRole()
-            })
-            .catch(console.log)
-    }
-
-    changeHandler = (val) => {
+    const changeHandler = (val) => {
         if (val.nativeEvent.text == "")
             return
 
-        let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
+        let newAddress = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
 
-        this.setState({
-            officicalsData: [],
-            officesData: [],
-            isLoading: true,
-            address: address
-        })
+        setIsLoading(true)
 
-        this.county()
-        this.local()
+        setOfficial([])
+        setOffice([])
+
+        setAddress(newAddress)
     }
 
-    render() {
-        return (
-            <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
-                {/* Searchbar */}
-                <TextInput 
-                    placeholder={'City, State'}
-                    onSubmitEditing={(val) => this.changeHandler(val)}
-                />
-                {/* Flatlist of data */}
-                {
-                    this.state.isLoading ? (<ActivityIndicator size={'large'} />) : (<this.officials />)
-                }
-            </View>
-        )
-    }
+    return (
+        <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
+            {/* Searchbar */}
+            <TextInput
+                placeholder={'City, State'}
+                onSubmitEditing={(val) => changeHandler(val)}
+            />
+            {/* Flatlist of data */}
+            {
+                isLoading ? (<ActivityIndicator size={'large'} />) : (
+                    <View style={{ flex: 1 }}>
+                        <FlatList
+                            data={officialsData}
+                            renderItem={({ item }) => (
+                                <View>
+                                    <TouchableOpacity onPress={() => {
+                                        findOfficialRole()
+                                        navigationProp.navigate("Official Info", { item });
+                                    }}>
+                                        {item.photoUrl !== undefined ? <Image source={{ uri: item.photoUrl }} style={{ width: 100, height: 100 }} />
+                                            : <Image source={profileImage} style={{ width: 100, height: 100 }} />}
+                                        <Text>{item.name}</Text>
+                                        <Text>{item.party}</Text>
+                                        <Text>Press for more information</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                            keyExtractor={item => item.name}
+                        />
+                    </View>
+                )
+            }
+        </View>
+    )
 }
 
 class MayorScreen extends PureComponent {
@@ -543,9 +466,8 @@ class MayorScreen extends PureComponent {
         try {
             let jsonValue = await AsyncStorage.getItem('userAddress')
 
-            if (jsonValue != null)
-            {
-                this.setState({userAddress: JSON.parse(jsonValue)})
+            if (jsonValue != null) {
+                this.setState({ userAddress: JSON.parse(jsonValue) })
                 this.mayors()
             }
 
@@ -556,7 +478,7 @@ class MayorScreen extends PureComponent {
 
     mayors = () => {
         let stateName = this.state.userAddress.address.split('%2c%20')[1].toUpperCase()
-                
+
         let stateData = stateMayorData.filter(elem => {
             return elem.state == stateName
         })
@@ -575,16 +497,20 @@ class MayorScreen extends PureComponent {
     changeHandler = (val) => {
         if (val.nativeEvent.text == "")
             return
-        
+
         let address = val.nativeEvent.text.replace(/ /g, '%20').replace(',', '%2C').toLowerCase()
 
         this.state = {
             isLoading: true,
             stateData: {},
-            cityData: {}
+            cityData: {},
+            userAddress: {
+                address: address,
+                UneditedAddress: val.nativeEvent.text
+            }
         }
 
-        this.mayors(address, val.nativeEvent.text)
+        this.mayors()
     }
 
     render() {
@@ -603,7 +529,7 @@ class MayorScreen extends PureComponent {
                             <Text>{item.electionDate}</Text>
                         </View>
                     )}
-                    keyExtractor={(item) => item.key.toString()}
+                    keyExtractor={(item) => item.name}
                 />
             );
         }
@@ -620,14 +546,14 @@ class MayorScreen extends PureComponent {
                             <Text>{item.website}</Text>
                         </View>
                     )}
-                    keyExtractor={(item) => item.key.toString()}
+                    keyExtractor={(item) => item.name}
                 />
             )
         }
 
         return (
             <View style={{ marginTop: 20, flex: 1 }}>
-                <TextInput 
+                <TextInput
                     placeholder={'City, State'}
                     onSubmitEditing={(val) => this.changeHandler(val)} />
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -639,10 +565,10 @@ class MayorScreen extends PureComponent {
                             showState: true
                         })}
                     />
-                    <Text style={{marginLeft: 20}}>State Mayors</Text>
+                    <Text style={{ marginLeft: 20 }}>State Mayors</Text>
                 </View>
 
-                { this.state.isLoading ? <ActivityIndicator /> :(this.state.showState ? <ShowStateData /> : <ShowCityData />)}
+                {this.state.isLoading ? <ActivityIndicator /> : (this.state.showState ? <ShowStateData /> : <ShowCityData />)}
             </View>
         );
     }
@@ -650,15 +576,16 @@ class MayorScreen extends PureComponent {
 
 const Tab = createMaterialTopTabNavigator();
 
-function OfficialsScreen() {
+export default function OfficialsScreen({ navigation, address }) {
+    addressProp = address._55
+    navigationProp = navigation
+
     return (
         <Tab.Navigator style={{ marginTop: Constants.statusBarHeight }}>
-            <Tab.Screen name='County/Local Officials' component={CountyAndLocalScreen} />
+            <Tab.Screen name='County/Local Officials' component={Example} />
             <Tab.Screen name='Mayors' component={MayorScreen} />
-            <Tab.Screen name='State Officials' component={StateScreen} />
-            <Tab.Screen name='Federal Officials' component={FederalScreen} />
+            {/* <Tab.Screen name='State Officials' component={StateScreen} />
+            <Tab.Screen name='Federal Officials' component={FederalScreen} /> */}
         </Tab.Navigator>
     )
 }
-
-export default OfficialsScreen
